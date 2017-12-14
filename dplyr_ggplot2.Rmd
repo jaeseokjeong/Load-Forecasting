@@ -1,0 +1,144 @@
+---
+title: "Progress Report"
+author: "JaeSeok Jeong"
+date: "2017/ 12/ 1"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **dplyr 정리 요약**
+
+
+
+
+```{r message=F}
+library(dplyr)
+```
+
+### 자료 불러오기
+
+Do it! 쉽게 배우는 R 데이터분석 예제 데이터 사용 
+```{r}
+exam<-read.csv("csv_exam.csv", stringsAsFactors = F)
+head(exam)
+```
+###1.조건에 맞는 데이터 추출: filter()
+```{r, results='hide'}
+exam %>% filter(english >= 80)
+exam %>% filter(english > 80 & math > 40) #교집합
+exam %>% filter(english > 80 | math < 50) #합집합
+exam %>% filter(class %in% c(1,3,5)) #class 중 해당 조건 만족하는 것 추출
+```
+###2.필요한 변수 추출: select()
+```{r, results='hide'}
+exam %>% select(class, math)
+exam %>% select(-math) #불필요 변수 제외
+exam %>% select(math) %>% 
+  distinct() #유일값 계산  
+```
+
+###3.순서대로 정렬: arrange()
+```{r, results='hide'}
+exam %>% arrange(math) #오름차순
+exam %>% arrange(desc(math)) #내림차순
+exam %>% arrange(class, math) #여러변수기준 오름차순정렬
+```
+###4.파생변수 추가하기: mutate()
+```{r, results='hide'}
+exam %>% mutate(total= math + english + science,
+                mat_eng =math + english,
+                test = ifelse(science >= 60, "p", "f"))
+```
+
+###5.집단별 요약: group_by()
+```{r, results='hide'}
+exam %>% group_by(class) %>% 
+  summarise(mean_math=mean(math, na.rm = T), #na.rm = T 결측치제외하고 계산
+            sum_math=sum(math, na.rm= T),
+            median_math = median(math),
+            n =n())
+```
+
+###6.자료 합치기
+left_join(data1, data2, by=" ") 가로합치기
+bind_rows(data1, data2) 세로로합치기
+
+
+
+## **ggplot2 정리 요약**
+
+
+#####종류는 크게 geom_point/col/bar/line/boxplot
+#####순서는 데이터,축 /그래프종류/ 세부설정으로 생각
+##### example: ggplot(data=mpg, aes(x= displ, y= hwy)) +geom_point + xlim(3,6)
+
+```{r}
+library(ggplot2)
+```
+
+###boxplot (x=이산형, y=연속형일때)
+```{r}
+ggplot(mpg, aes(x= class,y= hwy)) +
+  geom_boxplot(width=0.5, outlier.size = 3, outlier.colour = "red")+  
+  stat_summary(fun.y="mean", geom="point", shape=21, size=3, fill="blue")+
+  ggtitle('example of geom_boxplot')
+# scale_x_discrete(limits=c()) 범주형 순서바꾸기
+```
+
+
+### geom_point 산점도(두 수량형 변수)
+option: x,y,alpha,color,fill,shape,size
+```{r}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species, shape = Species)) + geom_point(size=3) +
+  ggtitle('example of geom_point') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20),
+        axis.title = element_text(size = 12, face = "bold"))
+
+```
+
+
+
+
+###geom_line (두 연속형 변수)
+```{r}
+ggplot(aes(x=Petal.Length, y=Sepal.Length, color=Species, group=Species), data = iris) + 
+  geom_line(size = 3, alpha = 0.5) +  #linetype="dotted" 지정가능
+  geom_point(size = 1 ) +  #shape=1~15, color= 지정가능
+  ggtitle('example of geom_line') +
+  ylab('y축') +
+  xlab('x축') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20),
+        axis.title = element_text(size = 12, face = "bold"))
+
+
+```
+###geom_histogram 
+```{r}
+ggplot(iris, aes(x=Sepal.Width)) +
+  geom_histogram(binwidth = 0.1, fill="red", color="black") + 
+  ggtitle('example of geom_histogram1') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20),
+        axis.title = element_text(size = 12, face = "bold"))
+
+```
+
+```{r}
+#facet_grid():집단(factor)별로 나누어 히스토그램 만들기
+ggplot(iris, aes(x=Sepal.Width)) +
+  geom_histogram(binwidth = 0.1, fill="red", color="black") + 
+  ggtitle('example of geom_histogram2') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20),
+        axis.title = element_text(size = 12, face = "bold")) +
+  facet_grid(Species ~ .) #가로로비교 (세로로 비교는 facet_grid(.~ Type))
+```
+
