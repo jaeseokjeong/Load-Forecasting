@@ -3,3 +3,269 @@ install.packages("lubridate")
 library(lubridate)
 str(energy)
 energy$date<-ymd_hms(energy$date)
+
+library(dplyr);library(ggplot2);library(reshape)
+
+energy1<-energy
+energy1$date<-ymd_hms(energy1$date)
+
+
+##EDA
+
+##id=272개
+##시작점은 2016-01-01로 272개 모두 동일
+##id별로 2016-01-01부터 15분간격으로 전력사용량 기록
+##종료시점은 조금씩 차이 있으나 가장 마지막 기록은 2017/03/07
+##energy data에서 결측치 768개. 전체 data가 1000만개 인걸 고려하면 매우 적은 수치 
+
+energy1 %>% distinct(id)
+table(is.na(energy1$usage))
+
+##우선 결측치(768개)를 제외하고 2016년 data만 flitering 하였다. 
+
+energy2016<-energy1 %>% 
+  filter(!is.na(usage)) %>% 
+  mutate(year=year(date),
+         month=month(date),
+         day=day(date),
+         wday=wday(date),
+         hour=hour(date),
+         minute=minute(date)) %>% 
+  filter(year==2016)
+
+
+
+month_day<-energy2016 %>% 
+  group_by(month, day) %>% 
+  summarise(usage_mean=mean(usage),
+            usage_sum=sum(usage))
+
+##2016년 일별 평균usage(365일) 요약통계량 및 간단한 시각화
+##정규분포X
+summary(month_day$usage_mean)
+hist(month_day$usage_mean)
+boxplot(month_day$usage_mean)
+qqnorm(month_day$usage_mean);qqline(month_day$usage_mean)
+hist(month_day$usage_mean, probability = T)
+lines(density(month_day$usage_mean), lty=2)
+t.test(month_day$usage_mean)
+
+
+##2016년 일별 평균usage 시계열 그래프
+##7,8월에 비정상적으로 평균 usage가 높음
+day_ts<-ts(month_day$usage_mean, frequency = 365, start = c(2016,1,1))
+plot.ts(day_ts)
+
+
+##outlier탐색
+##id별로 월별 평균usage/시간별 평균usage를 boxplot으로 나타냈다.
+##boxplot을 보면 outlier들 많음.->전부 제거 하면 가구수(id)소실이 너무 큼. outlier 처리방안 생각
+
+##1.id별 월별 평균 usage boxplot
+id_month<-energy2016 %>% 
+  group_by(id,month) %>% 
+  summarise(usage_sum=sum(usage),
+            usage_mean=mean(usage))
+
+ggplot(id_month, aes(x= factor(month),y=usage_mean)) +
+  geom_boxplot(width=0.5, outlier.size = 3, outlier.colour = "red")+  
+  stat_summary(fun.y="mean", geom="point", shape=21, size=3, fill="blue")+
+  ggtitle('id별 월별 평균 usage boxplot')
+
+##2.id별 시간별 평균 usage boxplot
+id_hour<-energy2016 %>% 
+  group_by(id,hour) %>% 
+  summarise(usage_sum=sum(usage),
+            usage_mean=mean(usage))
+
+ggplot(id_hour, aes(x= factor(hour),y=usage_mean)) +
+  geom_boxplot(width=0.5, outlier.size = 3, outlier.colour = "red")+  
+  stat_summary(fun.y="mean", geom="point", shape=21, size=3, fill="blue")+
+  ggtitle('id별 시간별 평균 usage boxplot')
+
+
+###우선 가구(id) 한개를 뽑아서 usage추이를 분석해봄
+
+indiv<-energy2016 %>% 
+  group_by(id,month,day) %>% 
+  summarise(usage_mean=mean(usage),
+            usage_sum=sum(usage)) %>% 
+  filter(id=='012746aa5a')
+
+#전체 시계열과 비교했을때, 4~7월에 이상점보임
+indiv_ts<-ts(indiv$usage_mean, frequency = 365, start = c(2016,1,1))
+plot.ts(indiv_ts)
+plot.ts(day_ts)
+
+##개인의 일별 평균 usage를 월별로 나누어본 그래프
+##유난히 usage가 높은 월이 존재
+ggplot(indiv, aes(x=factor(day), y=usage_mean, group = factor(month), color=month)) +
+  geom_line() +
+  labs(title='월별 usage', x='day',y='day usage 평균', col='month') 
+
+##분기별로 나누어 각각의 월마다 일별 평균 usage 시각화
+indiv1<- indiv %>% 
+  filter(month %in% c(1,2,3))
+
+indiv2<- indiv %>% 
+  filter(month %in% c(4,5,6))
+
+indiv3<- indiv %>% 
+  filter(month %in% c(7,8,9))
+
+indiv4<- indiv %>% 
+  filter(month %in% c(10,11,12))
+
+ggplot(indiv1, aes(x=day, y=usage_mean, group=1)) +
+  geom_line() +
+  facet_grid(month~.)
+
+
+ggplot(indiv2, aes(x=day, y=usage_mean, group=1)) +
+  geom_line() +
+  facet_grid(month~.)
+
+ggplot(indiv3, aes(x=day, y=usage_mean, group=1)) +
+  geom_line() +
+  facet_grid(month~.)
+
+ggplot(indiv4, aes(x=day, y=usage_mean, group=1)) +
+  geom_line() +
+  facet_grid(month~.)
+
+
+##요인분석
+##3개로 요인으로 90%설명가능
+id_hour_cast<-cast(id_hour, id~hour, values="usage_mean")
+
+library(psych)
+library(GPArotation)
+id_hour_cast1<-id_hour_cast[,-1]
+factor_hour<-principal(id_hour_cast1, rotate = "none")
+names(factor_hour)
+factor_hour$values #1이상까지
+varimax_hour<-principal(id_hour_cast1,nfactors = 3,rotate = "varimax")
+varimax_hour
+biplot(varimax_hour)
+
+
+divide_morning<- id_hour_cast1 %>% 
+  select(`0`,`1`,`2`,`10`,`11`,`12`,`21`,`22`,`23`)
+
+
+cor1<-cor(divide_morning)
+str(divide_morning)
+round(cor1, 2)
+install.packages("corrplot")
+library(corrplot)
+corrplot(cor1, method = "number")
+
+
+
+
+
+
+##시간별 usage평균 & 신뢰구간
+
+a<-sapply(id_hour_cast[,-1],mean) ##평균
+b<-sapply(id_hour_cast[,-1], sd) ##신뢰구간
+c<-a-b#신뢰구간범위
+d<-a+b#신뢰구간범위
+hour<-c(0:23)#시간대
+e<-cbind(a,b,c,d,hour)
+e<-as.data.frame(e)
+
+f<-id_hour_cast[1,]
+f<-melt(f, id="id")
+f<-f %>% select(value)
+g<-cbind(e,f)
+
+
+f<-as.data.frame(f)
+ggplot(g, aes(hour,a)) +
+  geom_line() +
+  geom_line(aes(hour,c), color ="blue") +
+  geom_line(aes(hour,d), color ="blue") +
+  geom_line(aes(hour,value), color ="red")
+
+summary(id_hour_cast$`1`)
+boxplot(id_hour_cast$`1`)
+hist(id_hour_cast$`1`)
+qqnorm(id_hour_cast$`1`);qqline(id_hour_cast$`1`)
+hist(id_hour_cast$`1`, probability = T)
+lines(density(id_hour_cast$`1`),lty=1, col = "red")
+
+
+#############################################
+#2016년 1월1일 시간당 평균usage을 전체(all)과 한 가구(id)를 비교하여 시각화 해보았다.
+
+##1월1일만 추출
+example <- energy2016 %>% 
+  filter(month==1 & day==1)
+
+##id '79305b3a21'추출
+example<- example %>% 
+  filter(id %in% c('79305b3a21')) %>% 
+  arrange(id) %>% 
+  select(date,id,usage)
+
+##전체 가구의 1월1일 시간당 usage평균 추추
+example1 <-energy2016 %>% 
+  group_by(year,month,day,hour,minute) %>% 
+  summarise(usage=mean(usage)) %>% 
+  mutate(id='all') %>% 
+  filter(month==1 &day==1)출
+
+#1월1일 평균usage 전체가구 &'79305b3a21'가구 data handling
+example1<-example1[,c(6,7)]
+example2<-example[,1]
+example3<-cbind(example2,example1)
+example3<-example3[,c(1,3,2)]
+colnames(example3)<-c('date','id','usage')
+example4<-rbind(example,example3)
+
+#시각화
+ggplot(data = example4, aes(x = date)) + geom_line(aes(y = usage, colour = id)) +
+  scale_colour_manual(values = c("blue", "red"))
+
+##이번에는 가구끼리 1월1일 시간당 usage평균을 비교해보았다. 
+example5<- example10 %>% 
+  filter(id %in% c('fac0b2c0ff','e83da17fc9')) %>% 
+  arrange(id) %>% 
+  select(date,id,usage)
+
+##시각
+ggplot(data = example5, aes(x = date)) + geom_line(aes(y = usage, colour = id)) +
+  scale_colour_manual(values = c("blue", "red"))
+
+
+
+############################
+
+
+abc<- energy2016 %>% 
+  group_by(id,year,month,day) %>% 
+  summarise(usage1=mean(usage)) %>% 
+  filter(id %in% c('fac0b2c0ff'))
+
+abc$date<-paste(abc$year, abc$month,abc$day, sep = "-")
+abc$date<-ymd(abc$date)
+abc<-abc[,c(1,5,6)]
+
+abc1 <-energy2016 %>% 
+  group_by(year,month,day) %>% 
+  summarise(usage1=mean(usage)) %>% 
+  mutate(id='all')
+
+abc1$date<-paste(abc1$year, abc1$month,abc1$day, sep = "-")
+abc1$date<-ymd(abc1$date)
+abc1<-abc1[,c(5,4,6)]
+
+abc2<-rbind(abc,abc1)
+
+
+
+ggplot(data = abc2, aes(x = date)) + geom_line(aes(y = usage1, colour = id)) +
+  scale_colour_manual(values = c("blue", "red"))
+
+
