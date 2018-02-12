@@ -22,3 +22,15 @@ paste("Everybody", "loves", "stats.", sep="-")
 
 #저장
 fwrite(energy_2, "final1.csv")
+
+
+##ggplot 분할
+# gridExtra 패키지 안에 있는 grid.arrage() 함수를 이용하여 화면 분할
+library(gridExtra)
+
+p1 = ggplot(diamonds, aes(x=cut, y=price)) + geom_bar()
+p2 = ggplot(diamonds, aes(x=color, y=price)) + geom_bar()
+
+ 
+# 1행 2열로 화면 분할함
+grid.arrange(p1, p2, ncol=2)
