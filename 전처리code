@@ -17,6 +17,11 @@ data_train <- energy_3[date %in% n_date1[7:27]]
 
 출처: http://goodtogreate.tistory.com/entry/데이터구조 [GOOD to GREAT]
 
+#특정 칼럼 값 변경
+data$col1[data$col1=col속성] <- 변경값
+energy_3$wday1[energy_3$wday1==1] <- "Sun"
+
+
 #paste
 paste("Everybody", "loves", "stats.", sep="-")
 
@@ -91,3 +96,35 @@ Var1 Var2
 5    red    F
 6 yellow    F
 
+#ifelse문
+pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within bend")
+
+#data.table 형성
+  gg<-data.table(y_obs = data_test1$hour_ave,
+                 pred_t = predict(model_t, newdata = data_test1),
+                 date_time=data_test$date_time,
+                 date=data_test$date)
+  
+  
+  #ggplot 형식
+    theme_bw() +
+  theme(plot.title = element_text(size = 16, face = "bold",color = "black"), #제목
+        axis.text = element_text(size = 10, face = "bold",color = "black"),  #축글자
+        axis.title = element_text(size = 13, face = "bold"),                 #축제목
+        legend.background = element_rect(color = "grey50"),                  #범례 나눠질때
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.title = element_text(size = 10, face = "bold")) +
+  scale_color_brewer(palette = "Set1") #범례 나눠질때 색변경
+  
+  
+    scale_x_discrete(limits=c("Mon","Tue","Wed","Thr","Fri","Sat","Sun") #x축 순서변경
+  ggsave(filename = 'p5.png', p) #저장
+  
+  
+  
+  
+  #gganimate
+  #frame:기준 / cumulative 누적적으로 그래프 쌓이게
+  p<-ggplot(data = comparison1, aes(date_time, y_obs, color = type, frame=date_time,  cumulative = TRUE)) +
+  geom_line(size = 1.5)
+  gganimate(p, interval = 0.2,"output.gif")
