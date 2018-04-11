@@ -1,6 +1,8 @@
   # 열순서변경 
 DT1 <- DT1[ ,c(6,7,1,2,3,4,8,5)] 
 
+# 열삭제
+
 #  해당하는 것 추출  
 n_date <- unique(energy_3[, date])
 #training data <- 3주치 data(504개)
@@ -121,6 +123,8 @@ pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within
   ggsave(filename = 'p5.png', p) #저장
   
   
+  # 불러오기
+  final_data <- fread("final_data_1.csv")
   
   
   #gganimate
@@ -128,3 +132,40 @@ pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within
   p<-ggplot(data = comparison1, aes(date_time, y_obs, color = type, frame=date_time,  cumulative = TRUE)) +
   geom_line(size = 1.5)
   gganimate(p, interval = 0.2,"output.gif")
+  
+  
+  # 열삭제
+practice<- final_data %>% 
+  select(-date, -V24)
+
+# 열의 요소들 비율
+table(final_data$holiday)
+prop.table(table(final_data$holiday))
+
+# missing value 확인
+any(is.na(final_data))
+
+# y값 추출
+df_y <- final_data$hour_ave
+
+#내림차순 정렬
+practice <- final_data %>% 
+  arrange(desc(final_data$temp))
+
+
+# training and test datasets 만들기
+set.seed(100)
+
+# Step 1: Get row numbers for the training data
+
+trainRowNumbers <- createDataPartition(orange$Purchase, p=0.8, list=FALSE)
+
+# Step 2: Create the training  dataset
+trainData <- orange[trainRowNumbers,]
+
+# Step 3: Create the test dataset
+testData <- orange[-trainRowNumbers,]
+
+# Store X and Y for later use.
+x <- trainData[, 2:18]
+y <- trainData$Purchase
