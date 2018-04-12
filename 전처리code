@@ -122,6 +122,9 @@ pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within
     scale_x_discrete(limits=c("Mon","Tue","Wed","Thr","Fri","Sat","Sun") #x축 순서변경
   ggsave(filename = 'p5.png', p) #저장
   
+  수직선추가
+    geom_vline(xintercept = 0)
+  
   
   # 불러오기
   final_data <- fread("final_data_1.csv")
