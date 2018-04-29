@@ -176,3 +176,7 @@ y <- trainData$Purchase
 
 #temp <- cast(usage_hour_weekday, usage_hour ~ usage_weekday, value = "usage_mean")
 행~열 , value=
+
+# 열의 요소들 비율
+table(final_data$holiday)
+prop.table(table(final_data$holiday))
