@@ -172,3 +172,7 @@ testData <- orange[-trainRowNumbers,]
 # Store X and Y for later use.
 x <- trainData[, 2:18]
 y <- trainData$Purchase
+
+
+#temp <- cast(usage_hour_weekday, usage_hour ~ usage_weekday, value = "usage_mean")
+행~열 , value=
