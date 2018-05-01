@@ -106,6 +106,10 @@ pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within
                  pred_t = predict(model_t, newdata = data_test1),
                  date_time=data_test$date_time,
                  date=data_test$date)
+ # 여러개 합칠때                
+ datas <- data.table(value = c(aa, bb),
+                    type = )
+ 
   
   
   #ggplot 형식
