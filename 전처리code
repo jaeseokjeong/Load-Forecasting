@@ -203,3 +203,10 @@ df %>%
                             y = "yes", 
                             n = "no"))
 
+
+#원하는 문자열 추출
+# str_sub(data, 시작,끝)
+sub_date<- paste(str_sub(n_date, 1,4), 
+                 str_sub(n_date, 6,7),
+                 str_sub(n_date, 9,10), 
+                 sep = "")
