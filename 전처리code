@@ -8,6 +8,15 @@ n_date <- unique(energy_3[, date])
 #training data <- 3주치 data(504개)
 data_train <- energy_3[date %in% n_date1[7:27]]
 
+# hour_ave column에서 NA인것 추출하기
+na_temp <- energy_hourly[which(is.na(energy_hourly$hour_ave)),]
+
+#
+na_number <- na_temp %>% 
+  dplyr::group_by(id) %>% 
+  dplyr:: summarise(N=n()) %>% 
+  dplyr::arrange(desc(N))
+
 
 #  특정 열을 찾아서 이름을 변경하는 방법
 
