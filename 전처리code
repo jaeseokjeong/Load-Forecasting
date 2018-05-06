@@ -28,6 +28,11 @@ na_number <- na_temp %>%
 
 출처: http://goodtogreate.tistory.com/entry/데이터구조 [GOOD to GREAT]
 
+
+# dplyr package, rename(dataframe, new_var1 = old_var1, new_var2 = old_var2, ...)
+
+출처: http://rfriend.tistory.com/41 [R, Python 분석과 프로그래밍 (by R Friend)]
+
 #특정 칼럼 값 변경
 data$col1[data$col1=col속성] <- 변경값
 energy_3$wday1[energy_3$wday1==1] <- "Sun"
