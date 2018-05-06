@@ -224,3 +224,11 @@ sub_date<- paste(str_sub(n_date, 1,4),
                  str_sub(n_date, 6,7),
                  str_sub(n_date, 9,10), 
                  sep = "")
+                 
+ # for문에서 error발생할 경우 그다음 계속해서 진행하는 것 : try()
+ for(i in 1:length(extract_month)){
+ 
+   try(month_holiday[[i]] <- get_holiday(extract_year, extract_month[i]))
+}
+
+ year_holiday <- rbindlist(month_holiday)
