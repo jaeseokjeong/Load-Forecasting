@@ -34,6 +34,9 @@ na_number <- na_temp %>%
 출처: http://rfriend.tistory.com/41 [R, Python 분석과 프로그래밍 (by R Friend)]
 
 #특정 칼럼 값 변경
+#칼럼 값 
+str(usage_hour_weekday)
+usage_hour_weekday$id <- as.character(usage_hour_weekday$id)
 data$col1[data$col1=col속성] <- 변경값
 energy_3$wday1[energy_3$wday1==1] <- "Sun"
 
