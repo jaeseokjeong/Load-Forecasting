@@ -247,4 +247,9 @@ LEFT OUTER Y[X] merge(X, Y, all.x=TRUE) :X 기준
 RIGHT OUTER X[Y] merge(X, Y, all.y=TRUE) : Y기준
 FULL OUTER - merge(X, Y, all=TRUE) :합집합 
 
+#pander error 생길 때
+
+setattr(year_holiday, 'sorted', NULL)
+year_holiday %>% pander()
+
 
