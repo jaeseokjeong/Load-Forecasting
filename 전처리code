@@ -252,4 +252,5 @@ FULL OUTER - merge(X, Y, all=TRUE) :합집합
 setattr(year_holiday, 'sorted', NULL)
 year_holiday %>% pander()
 
-
+## factor -> character -> numeric
+usage <- as.numeric(as.character(example$m))
