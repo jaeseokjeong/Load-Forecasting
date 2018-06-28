@@ -254,3 +254,7 @@ year_holiday %>% pander()
 
 ## factor -> character -> numeric
 usage <- as.numeric(as.character(example$m))
+
+## lubridate & filter 
+energy_fix <- energy_fix %>% 
+  dplyr:: filter(lubridate:: year(date) == 2016)
