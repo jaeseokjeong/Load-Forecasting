@@ -56,6 +56,9 @@ library(gridExtra)
 p1 = ggplot(diamonds, aes(x=cut, y=price)) + geom_bar()
 p2 = ggplot(diamonds, aes(x=color, y=price)) + geom_bar()
 
+##csv 저장
+write.csv(holiday_2017, file = "holiday_2017.csv")
+
  
 # 1행 2열로 화면 분할함
 grid.arrange(p1, p2, ncol=2)
