@@ -39,6 +39,7 @@ str(usage_hour_weekday)
 usage_hour_weekday$id <- as.character(usage_hour_weekday$id)
 data$col1[data$col1=col속성] <- 변경값
 energy_3$wday1[energy_3$wday1==1] <- "Sun"
+rent_car$age[rent_car$age=="10대"] <- "20대"
 
 
 #paste
