@@ -153,6 +153,11 @@ pred_day$type<-ifelse(pred_day$y_obs > pred_day$upr,"exceed upper bend"," within
   
   # 불러오기
   final_data <- fread("final_data_1.csv")
+  # not include
+  abcd <- individual_example %>% 
+  dplyr::filter(!usage_datetime %in% outlier_time) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(usage_datetime,usage)
   
   
   #gganimate
