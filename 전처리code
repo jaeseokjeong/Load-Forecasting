@@ -317,4 +317,6 @@ seoul_library2 <- seoul_library %>%
 seoul_library2 <- seoul_library %>% 
   dplyr::mutate_at(vars(6:7), 
                    funs(as.integer(ifelse(.=="-", NA, .))))
+                   
+{r, echo= F, warning=F, message=FALSE, include=FALSE} #echo 코드 안보이게, include 결과값,코드 모두                    
 
