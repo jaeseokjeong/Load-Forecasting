@@ -321,5 +321,31 @@ seoul_library2 <- seoul_library %>%
   dplyr::mutate_at(vars(6:7), 
                    funs(as.integer(ifelse(.=="-", NA, .))))
                    
-{r, echo= F, warning=F, message=FALSE, include=FALSE} #echo 코드 안보이게, include 결과값,코드 모두                    
+{r, echo= F, warning=F, message=FALSE, include=FALSE} #echo 코드 안보이게, include 결과값,코드 모두        
+
+
+final_seoul <- final_seoul %>% 
+  mutate(
+    # 3개 집단으로 구분
+    age_group=fct_collapse(age,
+                         '청년층' = c('20대'),
+                         '장년층' = c('30대','40대'),
+                         '노년층' = c('50대','60대이상'))
+  )
+
+table(final_seoul$age_group)
+
+# 콜수 범위를 4등분
+final_seoul %>% 
+  mutate(
+    call_number = cut_interval(sum_tel, n = 5)
+  ) %>% 
+  count(call_number)
+
+#온도 구분
+final_seoul %>% 
+  mutate(
+    call_number = cut_number(temp, n = 4)
+  ) %>% 
+  count(call_number)
 
