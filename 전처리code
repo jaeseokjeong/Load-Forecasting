@@ -362,3 +362,17 @@ selection_vector <- poker_vector > 0
 
 # Select from poker_vector these days
 poker_winning_days <- poker_vector[selection_vector]
+
+
+# scatter plot에서 두 변수사이의 단순한 관계 뿐만 아니라, 각 point가 속하는 범주의 색깔, 크기를 나눌 수 있음(다른 변수)
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+
+gapminder_1952 <- gapminder %>%
+  filter(year == 1952)
+
+# Add the size aesthetic to represent a country's gdpPercap
+ggplot(gapminder_1952, aes(x = pop, y = lifeExp, color = continent, size = gdpPercap)) +
+  geom_point() +
+  scale_x_log10()
