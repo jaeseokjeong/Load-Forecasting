@@ -381,3 +381,13 @@ ggplot(gapminder_1952, aes(x = pop, y = lifeExp, color = continent, size = gdpPe
   
   #factor에 
   factor_temperature_vector <- factor(temperature_vector, order = TRUE, levels = c("Low", "Medium", "High"))
+  
+  # Create speed_vector
+speed_vector <- c("medium", "slow", "slow", "medium", "fast")
+
+# Convert speed_vector to ordered factor vector
+factor_speed_vector <- factor(speed_vector, ordered = TRUE, levels = c("slow", "medium", "fast"))
+
+# Print factor_speed_vector
+factor_speed_vector
+summary(factor_speed_vector)
