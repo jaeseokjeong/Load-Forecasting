@@ -376,3 +376,8 @@ gapminder_1952 <- gapminder %>%
 ggplot(gapminder_1952, aes(x = pop, y = lifeExp, color = continent, size = gdpPercap)) +
   geom_point() +
   scale_x_log10()
+  
+  #facet_wrap(~year) : ~은 by를 의미. 연도별 그래프 그리면 시각화 효과적
+  
+  #factor에 
+  factor_temperature_vector <- factor(temperature_vector, order = TRUE, levels = c("Low", "Medium", "High"))
